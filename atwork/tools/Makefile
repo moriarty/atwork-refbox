@@ -31,9 +31,20 @@ OBJS_atwork_benchmark_ctrl = atwork-benchmark-ctrl.o
 LIBS_atwork_attention_msg_vis = stdc++ llsfrbcore llsfrbutils llsfrbconfig llsf_protobuf_comm atwork_pb_msgs
 OBJS_atwork_attention_msg_vis = atwork-attention-msg-vis.o
 
+LIBS_crossover_proxy = stdc++ llsfrbcore llsfrbutils llsfrbconfig llsf_protobuf_comm rci_pb_msgs
+OBJS_crossover_proxy = crossover-proxy.o
+
 ifeq ($(HAVE_PROTOBUF)$(HAVE_BOOST_LIBS),11)
-  OBJS_all += $(OBJS_atwork_fake_robot) $(OBJS_atwork_device_ctrl) $(OBJS_atwork_benchmark_ctrl) $(OBJS_atwork_attention_msg_vis)
-  BINS_all += $(BINDIR)/atwork-fake-robot $(BINDIR)/atwork-device-ctrl $(BINDIR)/atwork-benchmark-ctrl $(BINDIR)/atwork-attention-msg-vis
+  OBJS_all += $(OBJS_atwork_fake_robot) \
+              $(OBJS_atwork_device_ctrl) \
+              $(OBJS_atwork_benchmark_ctrl) \
+              $(OBJS_atwork_attention_msg_vis) \
+              $(OBJS_crossover_proxy)
+  BINS_all += $(BINDIR)/atwork-fake-robot \
+              $(BINDIR)/atwork-device-ctrl \
+              $(BINDIR)/atwork-benchmark-ctrl \
+              $(BINDIR)/atwork-attention-msg-vis \
+              $(BINDIR)/crossover-proxy
 
   CFLAGS_atwork_fake_robot += $(CFLAGS_PROTOBUF) \
                               $(call boost-libs-cflags,$(REQ_BOOST_LIBS))
@@ -54,6 +65,13 @@ ifeq ($(HAVE_PROTOBUF)$(HAVE_BOOST_LIBS),11)
                                $(call boost-libs-cflags,$(REQ_BOOST_LIBS))
   LDFLAGS_atwork_attention_msg_vis += $(LDFLAGS_PROTOBUF) \
                                 $(call boost-libs-ldflags,$(REQ_BOOST_LIBS))
+
+  CFLAGS_crossover_proxy  += $(CFLAGS_PROTOBUF) \
+                                 $(call boost-libs-cflags,$(REQ_BOOST_LIBS))
+  LDFLAGS_crossover_proxy += $(LDFLAGS_PROTOBUF) \
+                                 $(call boost-libs-ldflags,$(REQ_BOOST_LIBS))
+
+
 else
   ifneq ($(HAVE_PROTOBUF),1)
     WARN_TARGETS += warning_protobuf
