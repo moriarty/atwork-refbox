@@ -11,6 +11,7 @@
 #include <msgs/BenchmarkControl.pb.h>
 #include <msgs/BenchmarkState.pb.h>
 #include <msgs/ConveyorBelt.pb.h>
+#include <msgs/rci_pb_msgs/OrderInfo.pb.h>
 
 #include <gtkmm.h>
 #include <pangomm.h>
@@ -229,6 +230,28 @@ void on_cb_stop_click()
   client.send(msg);
 }
 
+void on_send_to_rcll_click()
+{
+  if (!client.connected()) return;
+
+  Gtk::ComboBoxText *combobox_cap_type = 0;
+  builder->get_widget("combobox_cap_type", combobox_cap_type);
+  std::string cap_type = combobox_cap_type->get_active_text();
+
+  Gtk::SpinButton *button_rcll_quantity = 0;
+  builder->get_widget("rcll_quantity", button_rcll_quantity);
+  int quantity_requested = button_rcll_quantity->get_value_as_int();
+
+  rci_pb_msgs::SetRCLLOrder msg;
+  if (cap_type == "CAP_BLACK"){
+     msg.set_cap_color(rci_pb_msgs::CAP_BLACK);
+  } else if (cap_type == "CAP_GREY"){
+     msg.set_cap_color(rci_pb_msgs::CAP_GREY);
+  }
+  msg.set_quantity_requested(quantity_requested);
+
+  client.send(msg);
+}
 
 int main(int argc, char **argv)
 {
@@ -255,6 +278,7 @@ int main(int argc, char **argv)
   Gtk::Button *button_reset = 0;
   Gtk::Button *button_cb_start = 0;
   Gtk::Button *button_cb_stop = 0;
+  Gtk::Button *button_rcll_send= 0;
   builder->get_widget("button_start", button_start);
   builder->get_widget("button_pause", button_pause);
   builder->get_widget("button_stop", button_stop);
@@ -263,6 +287,7 @@ int main(int argc, char **argv)
   builder->get_widget("button_reset", button_reset);
   builder->get_widget("button_cb_start", button_cb_start);
   builder->get_widget("button_cb_stop", button_cb_stop);
+  builder->get_widget("button_rcll_send", button_rcll_send);
 
   Glib::signal_timeout().connect(sigc::ptr_fun(&timeout_handler), 100);
   button_start->signal_clicked().connect(sigc::ptr_fun(&on_start_click));
@@ -273,6 +298,7 @@ int main(int argc, char **argv)
   button_reset->signal_clicked().connect(sigc::ptr_fun(&on_reset_click));
   button_cb_start->signal_clicked().connect(sigc::ptr_fun(&on_cb_start_click));
   button_cb_stop->signal_clicked().connect(sigc::ptr_fun(&on_cb_stop_click));
+  button_rcll_send->signal_clicked().connect(sigc::ptr_fun(&on_send_to_rcll_click));
 
   client.signal_received().connect(handle_message);
   client.signal_disconnected().connect(handle_disconnect);
