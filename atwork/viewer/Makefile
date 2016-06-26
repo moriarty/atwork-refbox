@@ -20,7 +20,7 @@ CFLAGS += $(CFLAGS_CPP11)
 REQ_BOOST_LIBS = thread asio system signals2
 HAVE_BOOST_LIBS = $(call boost-have-libs,$(REQ_BOOST_LIBS))
 
-LIBS_atwork_viewer = stdc++ llsfrbcore llsfrbutils llsfrbconfig llsf_protobuf_comm atwork_pb_msgs
+LIBS_atwork_viewer = stdc++ llsfrbcore llsfrbutils llsfrbconfig llsf_protobuf_comm atwork_pb_msgs rci_pb_msgs
 OBJS_atwork_viewer = atwork-viewer.o
 
 ifeq ($(HAVE_PROTOBUF)$(HAVE_BOOST_LIBS)$(HAVE_GTKMM),111)

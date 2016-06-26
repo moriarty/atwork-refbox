@@ -14,6 +14,7 @@
 #include <msgs/AttentionMessage.pb.h>
 #include <msgs/Inventory.pb.h>
 #include <msgs/TaskInfo.pb.h>
+#include <msgs/rci_pb_msgs/OrderInfo.pb.h>
 
 #include <gtkmm.h>
 #include <pangomm.h>

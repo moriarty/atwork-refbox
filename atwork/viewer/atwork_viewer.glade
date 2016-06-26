@@ -388,7 +388,7 @@
                                 <property name="label" translatable="yes">Stopped</property>
                                 <attributes>
                                   <attribute name="font-desc" value="Cantarell Bold 14"/>
-                                  <attribute name="foreground" value="#8a8ae2e23434"/>
+                                  <attribute name="foreground" value="#efef29292929"/>
                                 </attributes>
                               </object>
                             </child>
@@ -410,6 +410,51 @@
                         <property name="fill">True</property>
                         <property name="padding">5</property>
                         <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkFrame" id="frame4">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label_xalign">0</property>
+                        <property name="shadow_type">out</property>
+                        <child>
+                          <object class="GtkAlignment" id="alignment4">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="top_padding">12</property>
+                            <property name="bottom_padding">12</property>
+                            <property name="left_padding">12</property>
+                            <property name="right_padding">12</property>
+                            <child>
+                              <object class="GtkLabel" id="label_rcll_refbox">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">Not Connected</property>
+                                <attributes>
+                                  <attribute name="font-desc" value="Cantarell Bold 14"/>
+                                  <attribute name="foreground" value="#efef29292929"/>
+                                </attributes>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child type="label">
+                          <object class="GtkLabel" id="label3">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">RCLL RefBox</property>
+                            <attributes>
+                              <attribute name="font-desc" value="Cantarell Bold 12"/>
+                            </attributes>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="padding">5</property>
+                        <property name="position">1</property>
                       </packing>
                     </child>
                   </object>
