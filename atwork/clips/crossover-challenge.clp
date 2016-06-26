@@ -1,0 +1,64 @@
+(defclass RCLLOrder (is-a USER) (role concrete)
+  (slot next-id (type INTEGER) (storage shared) (default 0))
+  
+  (slot id (type INTEGER))
+  (slot cap-color (type SYMBOL) (allowed-values CAP_BLACK CAP_GREY) (default CAP_BLACK))
+  (slot quantity-requested (type INTEGER) (default 1))
+  (slot quantity-delivered (type INTEGER) (default 0))
+)
+
+(defmessage-handler RCLLOrder init ()
+  (call-next-handler)
+  (modify-instance ?self (id ?self:next-id) (next-id (+ ?self:next-id 1)))
+  (printout warn "Crossover order: " ?self:id ", " ?self:cap-color ", " ?self:quantity-requested crlf)
+)
+
+(defmessage-handler RCLLOrder create-msg ()
+  "Create a ProtoBut message of an RCLLOrder"
+  (bind ?o (pb-create "rci_pb_msgs.Order"))
+
+  (pb-set-field ?o "id" ?self:id)
+  (pb-set-field ?o "cap_color" ?self:cap-color)
+  (pb-set-field ?o "quantity_requested" ?self:quantity-requested)
+  (pb-set-field ?o "quantity_delivered" ?self:quantity-delivered)
+
+  (return ?o)
+)
+
+(defrule net-recv-SetRCLLOrder
+  ?mf <- (protobuf-msg (type "rci_pb_msgs.SetRCLLOrder") (ptr ?p) (rcvd-via STREAM))
+  =>
+  (retract ?mf) ; message will be destroyed after rule completes
+
+  ; Get the cap color (NONE, FBM, TBM) and type id from the message
+  (bind ?pb-cap-color (pb-field-value ?p "cap_color"))
+  (bind ?pb-quantity-requested (pb-field-value ?p "quantity_requested"))
+
+  (printout warn "Received crossover order" crlf)
+  ; TODO protect this?
+  (bind ?order (make-instance of RCLLOrder (cap-color ?pb-cap-color) (quantity-requested ?pb-quantity-requested)))
+
+  (bind ?pb-order (send ?order create-msg))
+
+  (do-for-all-facts ((?client network-client)) TRUE
+    (pb-send ?client:id ?pb-order)
+  )
+  (pb-destroy ?pb-order)
+
+  
+)
+
+(defrule net-recv-SetRCLLOrder-illegal
+  ?mf <- (protobuf-msg (type "rci_pb_msgs.SetRCLLOrder") (ptr ?p)
+           (rcvd-via BROADCAST) (rcvd-from ?host ?port))
+  =>
+  (retract ?mf) ; message will be destroyed after rule completes
+  (printout warn "Illegal SetBenchmarkScenario message received from host " ?host crlf)
+)
+
+; TODO - is this needed?
+;(defrule make-dummy-RCLLOrder
+;  (init)
+;  =>
+;  (make-instance [dummy-rcll-order] of RCLLOrder)
+;)

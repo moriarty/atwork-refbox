@@ -33,3 +33,11 @@
   (load* (resolve-file device-conveyor-belt.clp))
 )
 
+;(defrule load-crossover-challenge
+;  (init)
+;  (have-feature CrossoverChallenge)
+;  =>
+(printout t "Enabling CrossoverChallenge" crlf)
+(load* (resolve-file crossover-challenge.clp))
+;)
+
