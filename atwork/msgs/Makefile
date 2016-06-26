@@ -12,6 +12,8 @@ BASEDIR = ../..
 include $(BASEDIR)/etc/buildsys/config.mk
 include $(BASEDIR)/atwork/atwork.mk
 
+SUBDIRS = rci_pb_msgs
+
 PROTOBUF_all = atwork_pb_msgs
 
 MSGS_atwork_pb_msgs = $(notdir $(patsubst %.proto,%,$(wildcard $(SRCDIR)/*.proto)))
