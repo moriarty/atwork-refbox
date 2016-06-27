@@ -30,11 +30,10 @@
   =>
   (retract ?mf) ; message will be destroyed after rule completes
 
-  ; Get the cap color (NONE, FBM, TBM) and type id from the message
   (bind ?pb-cap-color (pb-field-value ?p "cap_color"))
   (bind ?pb-quantity-requested (pb-field-value ?p "quantity_requested"))
 
-  (printout warn "Received crossover order" crlf)
+  (printout warn "Received set crossover order" crlf)
   ; TODO protect this?
   (bind ?order (make-instance of RCLLOrder (cap-color ?pb-cap-color) (quantity-requested ?pb-quantity-requested)))
 
@@ -44,21 +43,26 @@
     (pb-send ?client:id ?pb-order)
   )
   (pb-destroy ?pb-order)
-
-  
 )
 
-(defrule net-recv-SetRCLLOrder-illegal
-  ?mf <- (protobuf-msg (type "rci_pb_msgs.SetRCLLOrder") (ptr ?p)
-           (rcvd-via BROADCAST) (rcvd-from ?host ?port))
+(defrule net-recv-RCLLOrder
+  ?mf <- (protobuf-msg (type "rci_pb_msgs.Order") (ptr ?p) (rcvd-via STREAM))
   =>
   (retract ?mf) ; message will be destroyed after rule completes
-  (printout warn "Illegal SetBenchmarkScenario message received from host " ?host crlf)
+
+  (bind ?pb-cap-color (pb-field-value ?p "cap_color"))
+  (bind ?pb-quantity-delivered (pb-field-value ?p "quantity_delivered"))
+
+  (printout warn "Received crossover delivery" crlf)
+  ; TODO protect this?
+  (slot-insert$ [inventory] items 1
+    (make-instance of Item (object-id [M30]) (location-id [workstation-05]))
+  )
 )
 
 ; TODO - is this needed?
-;(defrule make-dummy-RCLLOrder
-;  (init)
-;  =>
-;  (make-instance [dummy-rcll-order] of RCLLOrder)
-;)
+(defrule make-dummy-RCLLOrder
+  (init)
+  =>
+  (make-instance [dummy-rcll-order] of RCLLOrder)
+)

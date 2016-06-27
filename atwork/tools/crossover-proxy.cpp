@@ -3,6 +3,9 @@
  */
 
 #define BOOST_DATE_TIME_POSIX_TIME_STD_CONFIG
+#include <iostream>
+#include <string>
+#include <unordered_map>
 
 #include <config/yaml.h>
 
@@ -30,6 +33,8 @@ int			rcll_port_;
 std::shared_ptr<rci_pb_msgs::Order> atwork_order_;
 std::shared_ptr<rci_pb_msgs::Order> rcll_order_;
 
+std::unordered_map<int, rci_pb_msgs::Order> order_map;
+
 boost::mutex mutex;
 
 
@@ -50,6 +55,7 @@ void handle_atwork_msg(uint16_t comp_id, uint16_t msg_type,
     atwork_order_ = std::dynamic_pointer_cast<rci_pb_msgs::Order>(msg);
     
     std::cout << "handle_atwork_msg" << std::endl;
+
     if (!rcll_client_->connected()) return;
     std::cout << "rcll is connected" << std::endl;
     rci_pb_msgs::Order order;
@@ -57,7 +63,10 @@ void handle_atwork_msg(uint16_t comp_id, uint16_t msg_type,
     order.set_cap_color(atwork_order_->cap_color());
     order.set_quantity_requested(atwork_order_->quantity_requested());
     order.set_quantity_delivered(atwork_order_->quantity_delivered());
+
+    order_map[atwork_order_->id()] = order;
     rcll_client_->send(order);
+    std::cout << "added " << atwork_order_->id() << " to map" <<std::endl;
   }
 }
 
@@ -77,12 +86,32 @@ void handle_rcll_msg(uint16_t component_id, uint16_t msg_type,
   if (std::dynamic_pointer_cast<rci_pb_msgs::Order>(msg)) {
     rcll_order_ = std::dynamic_pointer_cast<rci_pb_msgs::Order>(msg);
 
-    if (rcll_order_->id() == atwork_order_->id()) {
-      if (rcll_order_->quantity_requested() <= rcll_order_->quantity_delivered()) {
-        std::cout << "ORDER IS DONE for RCLL" << std::endl;
-        quit = true;
-        io_service_.stop();
+    // Do nothing if RCLL hasn't delivered anything
+    if (rcll_order_->quantity_delivered() == 0) return;
+
+    auto it = order_map.find(rcll_order_->id());
+    if (it != order_map.end()){
+      // Do nothing if the quantity delivered hasn't changed.
+      if (it->second.quantity_delivered() == rcll_order_->quantity_delivered()) return;
+      // Remove order if finished
+      if (it->second.quantity_requested() <= rcll_order_->quantity_delivered()) {
+        order_map.erase(rcll_order_->id());
+        std::cout << "order " << rcll_order_->id() << " is finished." << std::endl;
+        return;
       }
+      //
+      int previously_delivered = it->second.quantity_delivered();
+      // Otherwise update the order in the map. TODO clean this up
+      rci_pb_msgs::Order order;
+      order.set_id(rcll_order_->id());
+      order.set_cap_color(rcll_order_->cap_color());
+      order.set_quantity_requested(rcll_order_->quantity_requested());
+      order.set_quantity_delivered(rcll_order_->quantity_delivered());
+      order_map[rcll_order_->id()] = order;
+
+      order.set_quantity_delivered(rcll_order_->quantity_delivered() - previously_delivered);
+      std::cout << "sending to atwork " << order.quantity_delivered();
+      atwork_client_->send(order);
     }
   } else {
     std::cout << "Can't decode msg" << std::endl;
