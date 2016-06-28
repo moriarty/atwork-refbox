@@ -93,12 +93,7 @@ void handle_rcll_msg(uint16_t component_id, uint16_t msg_type,
     if (it != order_map.end()){
       // Do nothing if the quantity delivered hasn't changed.
       if (it->second.quantity_delivered() == rcll_order_->quantity_delivered()) return;
-      // Remove order if finished
-      if (it->second.quantity_requested() <= rcll_order_->quantity_delivered()) {
-        order_map.erase(rcll_order_->id());
-        std::cout << "order " << rcll_order_->id() << " is finished." << std::endl;
-        return;
-      }
+      
       //
       int previously_delivered = it->second.quantity_delivered();
       // Otherwise update the order in the map. TODO clean this up
@@ -112,6 +107,11 @@ void handle_rcll_msg(uint16_t component_id, uint16_t msg_type,
       order.set_quantity_delivered(rcll_order_->quantity_delivered() - previously_delivered);
       std::cout << "sending to atwork " << order.quantity_delivered();
       atwork_client_->send(order);
+      // Remove order if finished
+      if (it->second.quantity_requested() <= rcll_order_->quantity_delivered()) {
+        order_map.erase(rcll_order_->id());
+        std::cout << "order " << rcll_order_->id() << " is finished." << std::endl;
+      }
     }
   } else {
     std::cout << "Can't decode msg" << std::endl;
