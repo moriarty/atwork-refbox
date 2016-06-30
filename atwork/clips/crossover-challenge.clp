@@ -48,8 +48,8 @@
        (transportation-task (make-instance of TransportationTask
          (object-id [M30])
          (quantity-requested ?pb-quantity-requested)
-         (destination-id [workstation-06])
-         (source-id [workstation-05])))
+         (destination-id [workstation-02])
+         (source-id [workstation-12])))
       )
    )
   (pb-destroy ?pb-order)
@@ -66,7 +66,7 @@
   (printout warn "Received crossover delivery" crlf)
   ; TODO protect this?
   (slot-insert$ [inventory] items 1
-    (make-instance of Item (object-id [M30]) (location-id [workstation-05]))
+    (make-instance of Item (object-id [M30]) (location-id [workstation-12]))
   )
 )
 
