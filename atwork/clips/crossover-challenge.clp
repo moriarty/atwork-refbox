@@ -42,6 +42,16 @@
   (do-for-all-facts ((?client network-client)) TRUE
     (pb-send ?client:id ?pb-order)
   )
+
+  (slot-insert$ [task-info] tasks 1
+     (make-instance of Task (status OFFERED) (task-type TRANSPORTATION)
+       (transportation-task (make-instance of TransportationTask
+         (object-id [M30])
+         (quantity-requested ?pb-quantity-requested)
+         (destination-id [workstation-06])
+         (source-id [workstation-05])))
+      )
+   )
   (pb-destroy ?pb-order)
 )
 
